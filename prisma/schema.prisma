@@ -1,0 +1,65 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+generator client {
+  provider = "prisma-client-js"
+  previewFeatures = ["fullTextSearch"]
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id        String     @id @default(uuid())
+  email     String
+  firstname String
+  lastname  String
+  password  String?
+  token     String?
+  isActive  Boolean    @default(false)
+  reset     Boolean    @default(false)
+  bookmarks BookMark[]
+  createdAt DateTime   @default(now())
+  updatedAt DateTime   @updatedAt
+}
+
+model Movie {
+  id          String     @id @default(uuid())
+  title       String     @unique
+  rating      String
+  isTrending  Boolean
+  createdAt   DateTime   @default(now())
+  updatedAt   DateTime   @updatedAt
+  recommended Boolean
+  year        Int
+  categoryId  Int
+  category    Category   @relation(fields: [categoryId], references: [id])
+  thumbnail   ThumbNail[]
+  bookMarks   BookMark[]
+}
+
+model Category {
+  id    Int     @id @default(autoincrement())
+  name  String
+  movie Movie[]
+}
+
+model ThumbNail {
+  id      Int    @id @default(autoincrement())
+  small   String? 
+  medium  String? 
+  large   String? 
+  type    String
+  movieId String 
+  movie   Movie  @relation(fields: [movieId], references: [id])
+}
+
+model BookMark {
+  id      String @id @default(uuid())
+  userId  String
+  user    User   @relation(fields: [userId], references: [id])
+  movieId String
+  movie   Movie  @relation(fields: [movieId], references: [id])
+}
